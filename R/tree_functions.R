@@ -112,7 +112,9 @@ nodeLogLike <- function(curr_part_res,
 
   # Using the Andrew's approach I would have
   mean_aux <- rep(0,length(curr_part_res_leaf))
-  cov_aux <- diag(x = (data$tau^(-1)),nrow = n_leaf) + (data$tau_beta^(-1))*tcrossprod(D_leaf)
+  # print(NCOL(D_leaf))
+  diag_tau_beta_inv <- diag(x = rep(data$tau_beta, each = NCOL(D_leaf)/NCOL(data$x_train)))
+  cov_aux <- diag(x = (data$tau^(-1)),nrow = n_leaf) + D_leaf%*%tcrossprod(diag_tau_beta_inv,D_leaf)
   result <- mvnfast::dmvn(X = curr_part_res_leaf,mu = mean_aux,sigma = cov_aux,log = TRUE)
 
 
@@ -657,10 +659,18 @@ update_tau_betas_j <- function(forest,
 
 
   # Setting some default hyperparameters
-  a_tau_beta <- d_tau_beta <- 0.1
+  # a_tau_beta <- d_tau_beta <- 0.1
+  # Setting some default hyperparameters
+  a_tau_beta <- data$a_tau_beta_j
+  d_tau_beta <- data$d_tau_beta_j
+
+  tau_b_shape <- 0.0
+  tau_b_rate <- 0.0
+
 
   tau_b_shape <- numeric(NCOL(data$x_train))
   tau_b_rate <- numeric(NCOL(data$x_train))
+  tau_beta_vec_aux <- numeric(NCOL(data$x_train))
 
   # Iterating over all trees
   for(i in 1:length(forest)){
@@ -674,22 +684,28 @@ update_tau_betas_j <- function(forest,
 
       cu_t <- forest[[i]][[t_nodes_names[j]]]
 
-      for(var_  in 1:NCOL(data$x_train))
+      for(var_  in 1:NCOL(data$x_train)){
 
+            # Getting ht leaf basis
+            leaf_basis_subindex <- unlist(data$basis_subindex[var_]) # Recall to the unique() function here
 
-      leaf_basis_subindex <- unlist(data$basis_subindex[var_]) # Recall to the unique() function here
+            if(!is.null(cu_t$betas_vec)){
+              tau_b_shape[var_] <- tau_b_shape[var_] + length(leaf_basis_subindex)
+              tau_b_rate[var_] <- tau_b_rate[var_] + c(crossprod(cu_t$betas_vec[leaf_basis_subindex]))
+            }
 
-      if(!is.null(cu_t$betas_vec)){
-        tau_b_shape[var_] <- tau_b_shape + length(leaf_basis_subindex)
-        tau_b_rate[var_] <- tau_b_rate + c(crossprod(cu_t$betas_vec[leaf_basis_subindex]))
       }
 
     }
 
 
-    tau_beta_vec_aux <- rgamma(n = 1,
-                               shape = 0.5*tau_b_shape + a_tau_beta,
-                               rate = 0.5*tau_b_rate + d_tau_beta)
+  }
+
+  for(j in 1:NCOL(data$x_train)){
+    tau_beta_vec_aux[j] <- rgamma(n = 1,
+                               shape = 0.5*tau_b_shape[j] + a_tau_beta,
+                               rate = 0.5*tau_b_rate[j] + d_tau_beta)
+
   }
 
   return(tau_beta_vec_aux)

@@ -19,8 +19,8 @@ test <- mlbench.friedman1.nointeraction.noise(n = n_,sd = sd_) %>% as.data.frame
 # train <- mlbench.friedman1(n = n_,sd = sd_) %>% as.data.frame()
 # test <- mlbench.friedman1(n = n_,sd = sd_) %>% as.data.frame()
 
-# train <- mlbench.d1.break(n = n_,sd = sd_)  |> as.data.frame()
-# test <- mlbench.d1.break(n = n_,sd = sd_) |> as.data.frame()
+train <- mlbench.d1.break(n = n_,sd = sd_)  |> as.data.frame()
+test <- mlbench.d1.break(n = n_,sd = sd_) |> as.data.frame()
 
 # Getting the training elements
 x_train <- train %>% dplyr::select(dplyr::starts_with("x"))
@@ -31,8 +31,10 @@ y_train <- train %>% dplyr::pull("y")
 spBART <- rspBART(x_train = x_train,
         x_test = x_test,y_train = y_train,
         n_mcmc = 2000,node_min_size = 5,
-        n_burn = 0,nIknots = 2,n_tree = 10,
-        dif_order = 0,motrbart_bool = FALSE)
+        n_burn = 0,nIknots = 10,n_tree = 10,
+        dif_order = 0,motrbart_bool = FALSE,
+        update_tau_beta = TRUE,
+        plot_preview = TRUE,scale_init = FALSE)
 
 bartmod <- dbarts::bart(x.train = x_train,y.train = y_train,x.test = x_test)
 softbartmod <- SoftBart::softbart(X = x_train,Y = y_train,X_test =  x_test)

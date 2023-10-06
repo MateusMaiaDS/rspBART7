@@ -263,6 +263,19 @@ rspBART <- function(x_train,
   d_tau <- (lambda*df)/2
 
 
+  # Getting hyperparameters for \tau_beta_j
+  # df <- 10
+  a_tau_beta_j <- df/2
+  sigquant_beta <- 0.99
+  nsigma_beta <- tau_mu^(-1/2)
+
+  # Calculating lambda
+  qchi_beta <- stats::qchisq(p = 1-sigquant_beta,df = df,lower.tail = 1,ncp = 0)
+  lambda_beta <- (nsigma_beta*nsigma_beta*qchi_beta)/df
+  d_tau_beta_j <- (lambda_beta*df)/2
+
+
+
   # Call the bart function
   tau_init <- nsigma^(-2)
 
@@ -278,8 +291,8 @@ rspBART <- function(x_train,
   n_post <- (n_mcmc-n_burn)
   all_trees <- vector("list", n_mcmc)
   all_betas <- vector("list",n_mcmc)
-  tau_beta <- tau_mu # In this first scenario we are going to work with a single value of \tau
-  all_tau_beta <- numeric(n_mcmc)
+  tau_beta <- rep(tau_mu,NCOL(x_train_scale)) # In this first scenario we are going to work with a single value of \tau
+  all_tau_beta <- matrix(NA, nrow = (n_mcmc), ncol = NCOL(x_train_scale))
   # all_delta <- numeric(n_mcmc)
   all_tau <- numeric(n_mcmc)
 
@@ -355,7 +368,9 @@ rspBART <- function(x_train,
                # P = P,
                node_min_size = node_min_size,
                all_var = all_var,
-               stump = stump)
+               stump = stump,
+               a_tau_beta_j = a_tau_beta_j,
+               d_tau_beta_j = d_tau_beta_j)
 
   #   So to simply interepret the element all_var_splits each element correspond
   #to each variable. Afterwards each element corresponds to a cutpoint; Finally,
@@ -466,7 +481,7 @@ rspBART <- function(x_train,
 
     # Updating all other parameters
     if(update_tau_beta){
-      data$tau_beta <- update_tau_betas(forest = forest,data = data)
+      data$tau_beta <- update_tau_betas_j(forest = forest,data = data)
     }
 
     # Updating delta
@@ -484,7 +499,7 @@ rspBART <- function(x_train,
     all_trees_fit[[i]] <- partial_train_fits
     all_y_hat[i,] <- y_hat
     all_y_hat_test[i,] <- y_hat_test
-    all_tau_beta[i] <- data$tau_beta
+    all_tau_beta[i,] <- data$tau_beta
     # all_delta[i] <- data$delta
 
 
@@ -504,7 +519,7 @@ rspBART <- function(x_train,
 
   # Normalising elements
   all_tau_norm <- numeric(n_mcmc)
-  all_tau_beta_norm <- numeric(n_mcmc)
+  all_tau_beta_norm <- matrix(NA,nrow = n_mcmc, NCOL(x_train_scale))
   all_trees_fit_norm <- vector("list",n_mcmc)
   all_y_hat_norm <- matrix(NA,nrow = nrow(all_y_hat),ncol = ncol(all_y_hat))
   all_y_hat_test_norm <- matrix(NA,nrow = nrow(all_y_hat_test),ncol = ncol(all_y_hat_test))
