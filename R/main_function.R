@@ -483,7 +483,7 @@ rspBART <- function(x_train,
     # Updating all other parameters
     if(update_tau_beta & data$all_var){
       data$tau_beta <- update_tau_betas_j(forest = forest,data = data)
-    } else {
+    } else if(update_tau_beta){
       data$tau_beta <- update_tau_betas(forest = forest,data = data)
     }
 

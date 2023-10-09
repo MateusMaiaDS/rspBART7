@@ -724,7 +724,8 @@ update_tau_betas <- function(forest,
 
 
   # Setting some default hyperparameters
-  a_tau_beta <- d_tau_beta <- 0.1
+  a_tau_beta <- data$a_tau_beta_j
+  d_tau_beta <- data$d_tau_beta_j
   tau_b_shape <- 0.0
   tau_b_rate <- 0.0
 
