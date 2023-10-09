@@ -1,10 +1,11 @@
 # source("R/debugging_rspBART.R")
 # rm(list=ls())
-source("R/other_functions.R")
-source("R/sim_functions.R")
+# source("R/other_functions.R")
+# source("R/sim_functions.R")
+# source("R/tree_functions.R")
 # source("inst/debugging_rspBART.R")
-source("R/tree_functions.R")
-# set.seed(42)
+# devtools::load_all()
+set.seed(42)
 
 # Creating the main function from the rspBART
 rspBART <- function(x_train,
@@ -480,8 +481,10 @@ rspBART <- function(x_train,
 
 
     # Updating all other parameters
-    if(update_tau_beta){
+    if(update_tau_beta & data$all_var){
       data$tau_beta <- update_tau_betas_j(forest = forest,data = data)
+    } else {
+      data$tau_beta <- update_tau_betas(forest = forest,data = data)
     }
 
     # Updating delta

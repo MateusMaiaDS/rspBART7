@@ -2,11 +2,11 @@ library(mlbench)
 set.seed(42)
 n_ <- 250
 sd_ <- 1
-# sim_train <- mlbench.friedman1.nointeraction(n = n_,sd = sd_)  |> as.data.frame()
-# sim_test <- mlbench.friedman1.nointeraction(n = n_,sd = sd_)  |> as.data.frame()
+sim_train <- mlbench.friedman1.nointeraction(n = n_,sd = sd_)  |> as.data.frame()
+sim_test <- mlbench.friedman1.nointeraction(n = n_,sd = sd_)  |> as.data.frame()
 
-sim_train <- mlbench.d1.break(n = n_,sd = 1)  |> as.data.frame()
-sim_test <- mlbench.d1.break(n = n_,sd = 1) |> as.data.frame()
+# sim_train <- mlbench.d1.break(n = n_,sd = 1)  |> as.data.frame()
+# sim_test <- mlbench.d1.break(n = n_,sd = 1) |> as.data.frame()
 
 # sim_train <- mlbench.d1(n = n_,sd = 1)  |> as.data.frame()
 # sim_test <- mlbench.d1(n = n_,sd = 1) |> as.data.frame()
@@ -39,5 +39,9 @@ nIknots = 5
 dif_order = 0
 motrbart_bool <- FALSE
 use_bs <- FALSE
-plot_preview = TRUE
+plot_preview = FALSE
 intercept <- FALSE
+all_var <- TRUE
+scale_init <- FALSE
+update_tau_beta <- TRUE
+stump <- FALSE

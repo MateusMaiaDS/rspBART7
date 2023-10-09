@@ -18,7 +18,7 @@ stump <- function(data){
         left = NA,
         right = NA,
         parent_node = NA,
-        ancestors = sample(x = 1:ncol(data$x_train),size = 1),
+        ancestors = sample(1:ncol(data$x_train),size = 1),
         terminal = TRUE,
         betas_vec = NULL
       )
@@ -112,8 +112,12 @@ nodeLogLike <- function(curr_part_res,
 
   # Using the Andrew's approach I would have
   mean_aux <- rep(0,length(curr_part_res_leaf))
-  # print(NCOL(D_leaf))
-  diag_tau_beta_inv <- diag(x = rep(data$tau_beta, each = NCOL(D_leaf)/NCOL(data$x_train)))
+
+  if(data$all_var){
+    diag_tau_beta_inv <- diag(x = rep(data$tau_beta, each = NCOL(D_leaf)/NCOL(data$x_train)))
+  } else {
+    diag_tau_beta_inv <- diag(x = unique(data$tau_beta), nrow = NCOL(D_leaf))
+  }
   cov_aux <- diag(x = (data$tau^(-1)),nrow = n_leaf) + D_leaf%*%tcrossprod(diag_tau_beta_inv,D_leaf)
   result <- mvnfast::dmvn(X = curr_part_res_leaf,mu = mean_aux,sigma = cov_aux,log = TRUE)
 
@@ -636,7 +640,8 @@ updateBetas <- function(tree,
 
     #  Calculating the quantities need to the posterior of \beta
     b_ <- crossprod(D_leaf,res_leaf)
-    Q_ <- (crossprod(D_leaf) + diag(data$tau_beta/data$tau, nrow = NCOL(D_leaf)))
+    data_tau_beta_diag <- rep(data$tau_beta, each = NCOL(D_leaf)/NCOL(data$x_train))
+    Q_ <- (crossprod(D_leaf) + diag(data_tau_beta_diag/data$tau, nrow = NCOL(D_leaf)))
     # Check this line again if there's any bug on the cholesky decomposition
     Q_inv_ <- chol2inv(chol(Q_))
     # Q_inv_ <- solve(Q_)
