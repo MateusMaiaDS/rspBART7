@@ -122,7 +122,7 @@ all_bart_lite <- function(cv_element,
   # Initialising df
   comparison_metrics <- data.frame(metric = NULL, value = NULL, model = NULL,fold = NULL)
 
-  # Running the model
+  # # Running the model
   # spBART <- rspBART(x_train = x_train,
   #                   x_test = x_test,y_train = y_train,
   #                   n_mcmc = 2500,node_min_size = 5,alpha = alpha_,
@@ -159,10 +159,10 @@ all_bart_lite <- function(cv_element,
   #                                                                        sds = rep(mean(spBART$all_tau[(n_burn_+1):n_mcmc_])^(-1/2), length(test$y)))$CRPS,
   #                                                           model = "spBART",fold = j))
   #
-  # Removing the model
+  # # Removing the model
   # rm(spBART)
 
-  if(rsp_bart_all_){
+  # if(rsp_bart_all_){
     # Running the model
     spBART <- rspBART(x_train = x_train,
                       x_test = x_test,y_train = y_train,
@@ -203,10 +203,10 @@ all_bart_lite <- function(cv_element,
 
     # Removing the model
     rm(spBART)
-  }
+  # }
 
 
-  if(rsp_bart_all_){
+  if(stump_){
     # Running the model
     spBART <- rspBART(x_train = x_train,
                       x_test = x_test,y_train = y_train,

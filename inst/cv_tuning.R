@@ -12,14 +12,14 @@ set.seed(42)
 n_ <- 250
 sd_ <- 1
 n_rep_ <- 10
-nIknots_ <- 10
-ntree_ <- 200
+nIknots_ <- 2
+ntree_ <- 100
 use_bs_ <- FALSE
 seed_ <- 42
 motr_bart_ <- FALSE
-all_ <- TRUE
+all_ <- FALSE
 alpha_ <- 0.95
-stump_ <- TRUE
+stump_ <- FALSE
 scale_init_ <- FALSE
 update_tau_beta_ <- TRUE
 
@@ -27,7 +27,7 @@ update_tau_beta_ <- TRUE
 # (1): "oned_break" one dimensionnal sin(2*x) with a break
 # (2): "friedman_noiter_nonoise": four-dimensional friedmna setting with no interaction terms and no extra X noise variables
 
-type_ <- c("friedman_nointer_nonoise")
+type_ <- c("friedman_nointer_noise")
 
 # ================
 # Printing message
@@ -51,9 +51,11 @@ for( i in 1:n_rep_){
         train <- mlbench.friedman1.nointeraction(n = n_,sd = sd_) %>% as.data.frame()
         test <- mlbench.friedman1.nointeraction(n = n_,sd = sd_) %>% as.data.frame()
     }
-    # train <- mlbench.friedman1.nointeraction.noise(n = n_,sd = sd_) %>% as.data.frame()
-    # test <- mlbench.friedman1.nointeraction.noise(n = n_,sd = sd_) %>% as.data.frame()
 
+    if(type_ == "friedman_nointer_noise"){
+        train <- mlbench.friedman1.nointeraction.noise(n = n_,sd = sd_) %>% as.data.frame()
+        test <- mlbench.friedman1.nointeraction.noise(n = n_,sd = sd_) %>% as.data.frame()
+    }
     # train <- mlbench.friedman1(n = n_,sd = sd_) %>% as.data.frame() %>% .[,c(1:5,11)]
     # test <- mlbench.friedman1(n = n_,sd = sd_) %>% as.data.frame() %>% .[,c(1:5,11)]
 
@@ -130,4 +132,12 @@ if(type_ == "friedman_nointer_nonoise"){
                                             "_sd_",sd_,"_nIknots_",nIknots_,"_ntree_",ntree_,"_bs_",use_bs_,"_motr_bart_",motr_bart_,"_alpha_",alpha_,"_stump_",stump_,".Rds"))
     }
 
+}
+
+
+if(type_ == "friedman_nointer_noise"){
+      saveRDS(object = result,file = paste0("/users/research/mmarques/spline_bart_lab/preliminar_results/rspBART7/friedman_noint_noise/oned_n_",n_,
+                                            "_sd_",sd_,"_nIknots_",nIknots_,"_ntree_",ntree_,"_bs_",use_bs_,
+                                            "_motr_bart_",motr_bart_,"_allvar_",all_,"_stump_",stump_,
+                                            "_sinit_",scale_init_,"_alpha_",alpha_,"_uptaubeta_",update_tau_beta_,".Rds"))
 }

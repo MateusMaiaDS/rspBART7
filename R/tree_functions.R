@@ -640,7 +640,12 @@ updateBetas <- function(tree,
 
     #  Calculating the quantities need to the posterior of \beta
     b_ <- crossprod(D_leaf,res_leaf)
-    data_tau_beta_diag <- rep(data$tau_beta, each = NCOL(D_leaf)/NCOL(data$x_train))
+    if(data$all_var){
+      data_tau_beta_diag <- rep(data$tau_beta, each = NCOL(D_leaf)/NCOL(data$x_train))
+    } else {
+      data_tau_beta_diag <- data$tau_beta
+    }
+
     Q_ <- (crossprod(D_leaf) + diag(data_tau_beta_diag/data$tau, nrow = NCOL(D_leaf)))
     # Check this line again if there's any bug on the cholesky decomposition
     Q_inv_ <- chol2inv(chol(Q_))
